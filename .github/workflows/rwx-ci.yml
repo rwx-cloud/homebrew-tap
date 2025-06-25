@@ -15,6 +15,7 @@ jobs:
           - name: rwx
             version: "1.8.0"
             os: macos-14 # arm
+    name: test_rwx_${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
 
@@ -29,13 +30,15 @@ jobs:
         run: '! grep "Cannot verify integrity of" install-output.txt'
 
   test_rwx_linux:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - name: rwx
             version: "1.8.0"
+            os: ubuntu-latest
+    name: test_rwx_${{ matrix.os }}
     steps:
       - name: Install homebrew
         uses: Homebrew/actions/setup-homebrew@5caa94335a28d8fdf5a478ae8586f2da40a0a989
@@ -43,5 +46,5 @@ jobs:
         run: |
           set -o pipefail
           ! command -v rwx
-          brew install rwx-research/tap/${{ matrix.name }}
+          brew install rwx-cloud/tap/${{ matrix.name }}
           rwx --version | grep ${{ matrix.version }}
