@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ "$#" -ne 1 ]]; then
+  >&2 echo "Usage: $0 X.X.X"
+  exit 2
+fi
+
+oldVersion=$(grep -E "version \"\d+\.\d+\.\d+\"" ./Formula/rwx.rb | /usr/bin/sed -E "s/.*version \"(.+)\".*/\1/")
+newVersion=$1
+
+if [[ "${oldVersion}" == "${newVersion}" ]]; then
+  echo "Exiting early... the version is already ${newVersion}"
+  exit 0
+fi
+
+mkdir -p tmp
+
+function getSHA() {
+  url=$1
+  expectedVersion=$2
+
+  curl "${url}" -o ./tmp/rwx --fail-with-body --silent -L
+  sha=$(sha256sum ./tmp/rwx | cut -d ' ' -f 1)
+
+  if [[ "$url" == *"linux"* ]]; then
+    echo "${sha}"
+    return
+  fi
+
+  chmod +x ./tmp/rwx
+  output=$(./tmp/rwx --version)
+  if ! (echo "${output}" | grep "v${expectedVersion}" &>/dev/null); then
+    rm ./tmp/rwx
+    echo "The binary at ${url} did not produce the expected version " 1>&2
+    echo "Output:" 1>&2
+    echo "${output}" 1>&2
+    exit 1
+  fi
+
+  rm ./tmp/rwx
+  echo "${sha}"
+}
+
+echo "Calculating the SHA256 of the binaries"
+oldAarch64SHA=$(getSHA "https://github.com/rwx-cloud/cli/releases/download/v${oldVersion}/rwx-darwin-aarch64" "${oldVersion}")
+oldX8664SHA=$(getSHA "https://github.com/rwx-cloud/cli/releases/download/v${oldVersion}/rwx-darwin-x86_64" "${oldVersion}")
+oldLinuxX8664SHA=$(getSHA "https://github.com/rwx-cloud/cli/releases/download/v${oldVersion}/rwx-linux-x86_64" "${oldVersion}")
+newAarch64SHA=$(getSHA "https://github.com/rwx-cloud/cli/releases/download/v${newVersion}/rwx-darwin-aarch64" "${newVersion}")
+newX8664SHA=$(getSHA "https://github.com/rwx-cloud/cli/releases/download/v${newVersion}/rwx-darwin-x86_64" "${newVersion}")
+newLinuxX8664SHA=$(getSHA "https://github.com/rwx-cloud/cli/releases/download/v${newVersion}/rwx-linux-x86_64" "${newVersion}")
+
+echo "Updating formulae and tests"
+
+/usr/bin/sed -i '' -e "s/version \"${oldVersion}\"/version \"${newVersion}\"/" "./Formula/rwx.rb"
+/usr/bin/sed -i '' -e "s/sha256 \"${oldAarch64SHA}\"/sha256 \"${newAarch64SHA}\"/" "./Formula/rwx.rb"
+/usr/bin/sed -i '' -e "s/sha256 \"${oldX8664SHA}\"/sha256 \"${newX8664SHA}\"/" "./Formula/rwx.rb"
+/usr/bin/sed -i '' -e "s/sha256 \"${oldLinuxX8664SHA}\"/sha256 \"${newLinuxX8664SHA}\"/" "./Formula/rwx.rb"
+
+/usr/bin/sed -i '' -e "s/version: \"${oldVersion}\"/version: \"${newVersion}\"/" "./.github/workflows/rwx-ci.yml"
+
+echo "Done!"

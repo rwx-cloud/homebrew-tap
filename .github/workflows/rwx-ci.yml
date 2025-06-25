@@ -1,0 +1,47 @@
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test_rwx:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: rwx
+            version: "1.8.0"
+            os: macos-13 # intel
+          - name: rwx
+            version: "1.8.0"
+            os: macos-14 # arm
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install rwx & run it
+        run: |
+          set -o pipefail
+          ! command -v rwx
+          brew install ./Formula/${{ matrix.name }}.rb 2>&1 | tee install-output.txt
+          rwx --version | grep ${{ matrix.version }}
+
+      - name: Ensure the integrity was verified
+        run: '! grep "Cannot verify integrity of" install-output.txt'
+
+  test_rwx_linux:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: rwx
+            version: "1.8.0"
+    steps:
+      - name: Install homebrew
+        uses: Homebrew/actions/setup-homebrew@5caa94335a28d8fdf5a478ae8586f2da40a0a989
+      - name: Install rwx
+        run: |
+          set -o pipefail
+          ! command -v rwx
+          brew install rwx-research/tap/${{ matrix.name }}
+          rwx --version | grep ${{ matrix.version }}
