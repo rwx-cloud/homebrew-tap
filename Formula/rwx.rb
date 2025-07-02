@@ -1,20 +1,20 @@
 class Rwx < Formula
   desc "RWX is the CI platform with the best developer experience, powering the fastest builds"
   homepage "https://www.rwx.com"
-  version "1.10.1"
+  version "1.10.2"
 
   if OS.mac?
     if Hardware::CPU.intel?
       url "https://github.com/rwx-cloud/cli/releases/download/v#{version}/rwx-darwin-x86_64", user_agent: :fake
-      sha256 "30578b4a10b9c44e2b0fa219be73f8e2f1a36cab24f21e70c1a4b3c590173023"
+      sha256 "d2b1e4de49ac0d9a1261d55b021c9f66e65bead57ceb37ff7a0d7fe0eadf71f1"
     elsif Hardware::CPU.arm?
       url "https://github.com/rwx-cloud/cli/releases/download/v#{version}/rwx-darwin-aarch64", user_agent: :fake
-      sha256 "4105de44455210b2480e49c207a48f8f5885bb3e8045215ed1bef05bd2974c33"
+      sha256 "b7ecd130fad9d977875d101a62daee3ee1f749a5a01138c428e71ce5ae830e65"
     end
   else
     if Hardware::CPU.intel?
       url "https://github.com/rwx-cloud/cli/releases/download/v#{version}/rwx-linux-x86_64", user_agent: :fake
-      sha256 "fff106a143204b5e1905eb12043a2782499665e34ad1b8e802e1d378f0b28b28"
+      sha256 "3a1118cf4bf34cb993799bc3cd75b7794143141272373c575c06934a25f4d7ce"
     end
   end
 
