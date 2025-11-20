@@ -10,10 +10,10 @@ jobs:
       matrix:
         include:
           - name: rwx
-            version: "1.13.1"
+            version: "2.0.0"
             os: macos-13 # intel
           - name: rwx
-            version: "1.13.1"
+            version: "2.0.0"
             os: macos-14 # arm
     name: test_rwx_${{ matrix.os }}
     steps:
@@ -38,7 +38,7 @@ jobs:
       matrix:
         include:
           - name: rwx
-            version: "1.13.1"
+            version: "2.0.0"
             os: ubuntu-latest
     name: test_rwx_${{ matrix.os }}
     steps:
