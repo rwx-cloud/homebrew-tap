@@ -11,10 +11,10 @@ jobs:
         include:
           - name: rwx
             version: "2.1.2"
-            os: macos-13 # intel
+            os: macos-15-intel # intel
           - name: rwx
             version: "2.1.2"
-            os: macos-14 # arm
+            os: macos-15-latest # arm
     name: test_rwx_${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
