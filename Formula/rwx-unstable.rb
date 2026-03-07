@@ -1,5 +1,7 @@
 require "json"
+require "net/http"
 require "time"
+require "uri"
 
 class RwxUnstable < Formula
   desc "RWX CLI for running and analyzing CI builds"
@@ -7,14 +9,21 @@ class RwxUnstable < Formula
 
   class << self
     def release_metadata
-      @release_metadata ||= JSON.parse(
-        Utils::Curl.curl_output(
-          "--location",
-          "--header",
-          "Accept: application/vnd.github+json",
-          "https://api.github.com/repos/rwx-cloud/cli/releases/tags/unstable",
-        ).stdout,
-      )
+      @release_metadata ||= begin
+        uri = URI("https://api.github.com/repos/rwx-cloud/cli/releases/tags/unstable")
+        request = Net::HTTP::Get.new(uri)
+        request["Accept"] = "application/vnd.github+json"
+
+        response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+          http.request(request)
+        end
+
+        unless response.is_a?(Net::HTTPSuccess)
+          raise "Failed to fetch #{uri}: #{response.code} #{response.message}"
+        end
+
+        JSON.parse(response.body)
+      end
     end
 
     def release_assets
