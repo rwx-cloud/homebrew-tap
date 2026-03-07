@@ -29,7 +29,7 @@ jobs:
         run: |
           set -o pipefail
           ! command -v rwx
-          brew install rwx-cloud/tap/${{ matrix.name }} 2>&1 | tee install-output.txt
+          brew install ./Formula/${{ matrix.name }}.rb 2>&1 | tee install-output.txt
           rwx --version | grep ${{ matrix.version }}
         env:
           HOMEBREW_DEVELOPER: 1
@@ -59,8 +59,10 @@ jobs:
         run: |
           set -o pipefail
           ! command -v rwx
-          brew install rwx-cloud/tap/${{ matrix.name }} 2>&1 | tee install-output.txt
+          brew install ./Formula/${{ matrix.name }}.rb 2>&1 | tee install-output.txt
           rwx --version | grep ${{ matrix.version }}
+        env:
+          HOMEBREW_DEVELOPER: 1
 
       - name: Ensure the integrity was verified
         run: '! grep "Cannot verify integrity of" install-output.txt'
