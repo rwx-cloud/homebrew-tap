@@ -12,10 +12,16 @@ jobs:
           - name: rwx
             version: "3.7.0"
             os: macos-15-intel # intel
+          - name: rwx-unstable
+            version: "unstable-"
+            os: macos-15-intel # intel
           - name: rwx
             version: "3.7.0"
             os: macos-15 # arm
-    name: test_rwx_${{ matrix.os }}
+          - name: rwx-unstable
+            version: "unstable-"
+            os: macos-15 # arm
+    name: test_${{ matrix.name }}_${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
 
@@ -40,13 +46,23 @@ jobs:
           - name: rwx
             version: "3.7.0"
             os: ubuntu-latest
-    name: test_rwx_${{ matrix.os }}
+          - name: rwx-unstable
+            version: "unstable-"
+            os: ubuntu-latest
+    name: test_${{ matrix.name }}_${{ matrix.os }}
     steps:
+      - uses: actions/checkout@v3
+
       - name: Install homebrew
         uses: Homebrew/actions/setup-homebrew@5caa94335a28d8fdf5a478ae8586f2da40a0a989
       - name: Install rwx
         run: |
           set -o pipefail
           ! command -v rwx
-          brew install rwx-cloud/tap/${{ matrix.name }}
+          brew install ./Formula/${{ matrix.name }}.rb 2>&1 | tee install-output.txt
           rwx --version | grep ${{ matrix.version }}
+        env:
+          HOMEBREW_DEVELOPER: 1
+
+      - name: Ensure the integrity was verified
+        run: '! grep "Cannot verify integrity of" install-output.txt'
