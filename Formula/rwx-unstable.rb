@@ -10,7 +10,7 @@ class RwxUnstable < Formula
   class << self
     def release_metadata
       @release_metadata ||= begin
-        uri = URI("https://api.github.com/repos/rwx-cloud/cli/releases/tags/unstable")
+        uri = URI("https://api.github.com/repos/rwx-cloud/rwx/releases/tags/unstable")
         request = Net::HTTP::Get.new(uri)
         request["Accept"] = "application/vnd.github+json"
 

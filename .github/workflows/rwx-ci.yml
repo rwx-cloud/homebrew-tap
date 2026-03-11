@@ -12,14 +12,8 @@ jobs:
           - name: rwx
             version: "3.8.0"
             os: macos-15-intel # intel
-          - name: rwx-unstable
-            version: "unstable-"
-            os: macos-15-intel # intel
           - name: rwx
             version: "3.8.0"
-            os: macos-15 # arm
-          - name: rwx-unstable
-            version: "unstable-"
             os: macos-15 # arm
     name: test_${{ matrix.name }}_${{ matrix.os }}
     steps:
