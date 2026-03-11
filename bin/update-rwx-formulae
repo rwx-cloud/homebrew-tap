@@ -44,12 +44,12 @@ function getSHA() {
 }
 
 echo "Calculating the SHA256 of the binaries"
-oldAarch64SHA=$(getSHA "https://github.com/rwx-cloud/cli/releases/download/v${oldVersion}/rwx-darwin-aarch64" "${oldVersion}")
-oldX8664SHA=$(getSHA "https://github.com/rwx-cloud/cli/releases/download/v${oldVersion}/rwx-darwin-x86_64" "${oldVersion}")
-oldLinuxX8664SHA=$(getSHA "https://github.com/rwx-cloud/cli/releases/download/v${oldVersion}/rwx-linux-x86_64" "${oldVersion}")
-newAarch64SHA=$(getSHA "https://github.com/rwx-cloud/cli/releases/download/v${newVersion}/rwx-darwin-aarch64" "${newVersion}")
-newX8664SHA=$(getSHA "https://github.com/rwx-cloud/cli/releases/download/v${newVersion}/rwx-darwin-x86_64" "${newVersion}")
-newLinuxX8664SHA=$(getSHA "https://github.com/rwx-cloud/cli/releases/download/v${newVersion}/rwx-linux-x86_64" "${newVersion}")
+oldAarch64SHA=$(getSHA "https://github.com/rwx-cloud/rwx/releases/download/v${oldVersion}/rwx-darwin-aarch64" "${oldVersion}")
+oldX8664SHA=$(getSHA "https://github.com/rwx-cloud/rwx/releases/download/v${oldVersion}/rwx-darwin-x86_64" "${oldVersion}")
+oldLinuxX8664SHA=$(getSHA "https://github.com/rwx-cloud/rwx/releases/download/v${oldVersion}/rwx-linux-x86_64" "${oldVersion}")
+newAarch64SHA=$(getSHA "https://github.com/rwx-cloud/rwx/releases/download/v${newVersion}/rwx-darwin-aarch64" "${newVersion}")
+newX8664SHA=$(getSHA "https://github.com/rwx-cloud/rwx/releases/download/v${newVersion}/rwx-darwin-x86_64" "${newVersion}")
+newLinuxX8664SHA=$(getSHA "https://github.com/rwx-cloud/rwx/releases/download/v${newVersion}/rwx-linux-x86_64" "${newVersion}")
 
 echo "Updating formulae and tests"
 
