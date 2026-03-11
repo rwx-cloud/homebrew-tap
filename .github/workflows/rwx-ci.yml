@@ -10,13 +10,13 @@ jobs:
       matrix:
         include:
           - name: rwx
-            version: "3.7.1"
+            version: "3.8.0"
             os: macos-15-intel # intel
           - name: rwx-unstable
             version: "unstable-"
             os: macos-15-intel # intel
           - name: rwx
-            version: "3.7.1"
+            version: "3.8.0"
             os: macos-15 # arm
           - name: rwx-unstable
             version: "unstable-"
@@ -44,7 +44,7 @@ jobs:
       matrix:
         include:
           - name: rwx
-            version: "3.7.1"
+            version: "3.8.0"
             os: ubuntu-latest
           - name: rwx-unstable
             version: "unstable-"
