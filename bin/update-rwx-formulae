@@ -7,7 +7,18 @@ if [[ "$#" -ne 1 ]]; then
   exit 2
 fi
 
-oldVersion=$(grep -E "version \"\d+\.\d+\.\d+\"" ./Formula/rwx.rb | /usr/bin/sed -E "s/.*version \"(.+)\".*/\1/")
+hostOS=$(uname -s | tr '[:upper:]' '[:lower:]')
+
+# BSD sed (macOS) requires an explicit backup extension after -i; GNU sed (Linux) does not.
+sed_inplace() {
+  if [[ "${hostOS}" == "darwin" ]]; then
+    /usr/bin/sed -i '' "$@"
+  else
+    sed -i "$@"
+  fi
+}
+
+oldVersion=$(grep -E "version \"[0-9]+\.[0-9]+\.[0-9]+\"" ./Formula/rwx.rb | sed -E "s/.*version \"(.+)\".*/\1/")
 newVersion=$1
 
 if [[ "${oldVersion}" == "${newVersion}" ]]; then
@@ -24,7 +35,9 @@ function getSHA() {
   curl "${url}" -o ./tmp/rwx --fail-with-body --silent -L
   sha=$(sha256sum ./tmp/rwx | cut -d ' ' -f 1)
 
-  if [[ "$url" == *"linux"* ]]; then
+  # Only execute the binary to verify its version when its target OS matches the host.
+  if [[ "$url" != *"${hostOS}"* ]]; then
+    rm ./tmp/rwx
     echo "${sha}"
     return
   fi
@@ -53,11 +66,11 @@ newLinuxX8664SHA=$(getSHA "https://github.com/rwx-cloud/rwx/releases/download/v$
 
 echo "Updating formulae and tests"
 
-/usr/bin/sed -i '' -e "s/version \"${oldVersion}\"/version \"${newVersion}\"/" "./Formula/rwx.rb"
-/usr/bin/sed -i '' -e "s/sha256 \"${oldAarch64SHA}\"/sha256 \"${newAarch64SHA}\"/" "./Formula/rwx.rb"
-/usr/bin/sed -i '' -e "s/sha256 \"${oldX8664SHA}\"/sha256 \"${newX8664SHA}\"/" "./Formula/rwx.rb"
-/usr/bin/sed -i '' -e "s/sha256 \"${oldLinuxX8664SHA}\"/sha256 \"${newLinuxX8664SHA}\"/" "./Formula/rwx.rb"
+sed_inplace -e "s/version \"${oldVersion}\"/version \"${newVersion}\"/" "./Formula/rwx.rb"
+sed_inplace -e "s/sha256 \"${oldAarch64SHA}\"/sha256 \"${newAarch64SHA}\"/" "./Formula/rwx.rb"
+sed_inplace -e "s/sha256 \"${oldX8664SHA}\"/sha256 \"${newX8664SHA}\"/" "./Formula/rwx.rb"
+sed_inplace -e "s/sha256 \"${oldLinuxX8664SHA}\"/sha256 \"${newLinuxX8664SHA}\"/" "./Formula/rwx.rb"
 
-/usr/bin/sed -i '' -e "s/version: \"${oldVersion}\"/version: \"${newVersion}\"/" "./.github/workflows/rwx-ci.yml"
+sed_inplace -e "s/version: \"${oldVersion}\"/version: \"${newVersion}\"/" "./.github/workflows/rwx-ci.yml"
 
 echo "Done!"
