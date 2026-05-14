@@ -1,0 +1,44 @@
+on:
+  dispatch:
+    key: release-homebrew-tap
+    title: "Release rwx ${{ init.version }}"
+    params:
+      - key: version
+        description: "The rwx CLI version to release, in the format X.X.X"
+        required: true
+    init:
+      commit-sha: ${{ event.git.sha }}
+      version: ${{ event.dispatch.params.version }}
+
+base:
+  image: ubuntu:24.04
+  config: rwx/base 1.1.0
+
+tasks:
+  - key: verify-inputs
+    run: |
+      echo "${{ init.version }}" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
+        || (echo "Version '${{ init.version }}' is not formatted as X.X.X" && false)
+
+  - key: code
+    call: git/clone 2.0.7
+    after: verify-inputs
+    with:
+      preserve-git-dir: true
+      repository: https://github.com/rwx-cloud/homebrew-tap.git
+      ref: ${{ init.commit-sha }}
+
+  - key: update-formulae
+    use: code
+    cache: false
+    run: bin/update-rwx-formulae ${{ init.version }}
+
+  - key: create-pull-request
+    call: github/create-pull-request 1.0.6
+    use: update-formulae
+    with:
+      github-token: ${{ github-apps.rwx-cloud-bot.token }}
+      branch-prefix: release-${{ init.version }}
+      pull-request-title: "Release ${{ init.version }}"
+      pull-request-body: |
+        See https://github.com/rwx-cloud/rwx/releases/tag/v${{ init.version }}
