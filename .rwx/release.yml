@@ -12,7 +12,7 @@ on:
 
 base:
   image: ubuntu:24.04
-  config: rwx/base 1.1.0
+  config: rwx/base 1.1.1
 
 tasks:
   - key: verify-inputs
@@ -34,11 +34,13 @@ tasks:
     run: bin/update-rwx-formulae ${{ init.version }}
 
   - key: create-pull-request
-    call: github/create-pull-request 1.0.6
+    call: github/create-pull-request 1.0.7
     use: update-formulae
     with:
       github-token: ${{ github-apps.rwx-cloud-bot.token }}
       branch-prefix: release-${{ init.version }}
       pull-request-title: "Release ${{ init.version }}"
+      enable-auto-merge: true
+      reviewers: rwx-cloud/engineers
       pull-request-body: |
         See https://github.com/rwx-cloud/rwx/releases/tag/v${{ init.version }}
