@@ -61,7 +61,7 @@ jobs:
           set -o pipefail
           ! command -v rwx
           brew trust --formula rwx-cloud/tap/${{ matrix.name }}
-          brew install --formula ./Formula/${{ matrix.name }}.rb 2>&1 | tee install-output.txt
+          brew install --formula rwx-cloud/tap/${{ matrix.name }} 2>&1 | tee install-output.txt
           rwx --version | grep ${{ matrix.version }}
         env:
           HOMEBREW_DEVELOPER: 1
