@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Installs $FORMULA from this checkout of the tap and checks that rwx reports $VERSION.
+set -euo pipefail
+
+: "${FORMULA:?}" "${VERSION:?}"
+
+if [[ -z "${CI:-}" ]]; then
+  echo "Refusing to run outside CI: this replaces the rwx-cloud/tap tap in Homebrew with a symlink to this checkout" >&2
+  exit 1
+fi
+
+if command -v rwx; then
+  echo "rwx is already installed; the test would not exercise the formula" >&2
+  exit 1
+fi
+
+# Point the rwx-cloud/tap tap at this checkout, like Homebrew/actions/setup-homebrew does.
+taps="$(brew --repository)/Library/Taps/rwx-cloud"
+mkdir -p "$taps"
+rm -rf "$taps/homebrew-tap"
+ln -s "$PWD" "$taps/homebrew-tap"
+
+brew trust --formula "rwx-cloud/tap/$FORMULA"
+brew install --formula "rwx-cloud/tap/$FORMULA" 2>&1 | tee install-output.txt
+rwx --version | grep -- "$VERSION"
+
+if grep "Cannot verify integrity of" install-output.txt; then
+  echo "Homebrew did not verify the integrity of the download" >&2
+  exit 1
+fi

@@ -71,6 +71,6 @@ sed_inplace -e "s/sha256 \"${oldAarch64SHA}\"/sha256 \"${newAarch64SHA}\"/" "./F
 sed_inplace -e "s/sha256 \"${oldX8664SHA}\"/sha256 \"${newX8664SHA}\"/" "./Formula/rwx.rb"
 sed_inplace -e "s/sha256 \"${oldLinuxX8664SHA}\"/sha256 \"${newLinuxX8664SHA}\"/" "./Formula/rwx.rb"
 
-sed_inplace -e "s/version: \"${oldVersion}\"/version: \"${newVersion}\"/" "./.github/workflows/rwx-ci.yml"
+sed_inplace -E -e "s/(version|VERSION): \"${oldVersion}\"/\1: \"${newVersion}\"/" "./.rwx/ci.yml"
 
 echo "Done!"

@@ -1,0 +1,56 @@
+on:
+  github:
+    pull_request:
+      if: ${{ event.github.pull_request.pull_request.base.ref == 'main' }}
+      init:
+        commit-sha: ${{ event.git.sha }}
+  cli:
+    init:
+      commit-sha: ${{ event.git.sha }}
+
+base:
+  image: ubuntu:26.04
+  config: rwx/base 1.2.2
+
+tasks:
+  - key: code
+    call: git/clone 2.4.1
+    with:
+      repository: https://github.com/rwx-cloud/homebrew-tap.git
+      ref: ${{ init.commit-sha }}
+
+  - key: linux-homebrew
+    run: |
+      sudo apt-get update
+      sudo apt-get install --yes bubblewrap
+      sudo apt-get clean
+      NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      echo "/home/linuxbrew/.linuxbrew/bin" > "$RWX_ENV/PATH"
+
+  - key: test-linux
+    use: [code, linux-homebrew]
+    parallel:
+      key: test-${{ parallel.formula }}-linux
+      values:
+        - formula: rwx
+          version: "3.38.1"
+        - formula: rwx-unstable
+          version: "unstable-"
+    env:
+      FORMULA: ${{ parallel.formula }}
+      VERSION: ${{ parallel.version }}
+      HOMEBREW_DEVELOPER: 1
+    run: bin/test-formula-install
+
+  - key: test-macos
+    use: code
+    macos:
+      version: 27
+    env:
+      FORMULA: rwx
+      VERSION: "3.38.1"
+      HOMEBREW_DEVELOPER: 1
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
+    run: |
+      brew update
+      bin/test-formula-install
