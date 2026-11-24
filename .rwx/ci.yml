@@ -33,7 +33,7 @@ tasks:
       key: test-${{ parallel.formula }}-linux
       values:
         - formula: rwx
-          version: "3.38.1"
+          version: "3.39.0"
         - formula: rwx-unstable
           version: "unstable-"
     env:
@@ -48,7 +48,7 @@ tasks:
       version: 27
     env:
       FORMULA: rwx
-      VERSION: "3.38.1"
+      VERSION: "3.39.0"
       HOMEBREW_DEVELOPER: 1
       HOMEBREW_NO_INSTALL_CLEANUP: 1
     run: |
